@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">Intents</string>
     <string name="parameter">Parameter</string>
+    <string name="open_activity_with_explicit_intent">Open activity with explicit Intent</string>
+    <string name="initial_value">Initial Value</string>
 </resources>
