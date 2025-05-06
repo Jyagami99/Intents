@@ -3,6 +3,7 @@ package com.example.intents
 import android.content.Intent
 import android.content.Intent.ACTION_CALL
 import android.content.Intent.ACTION_DIAL
+import android.content.Intent.ACTION_VIEW
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -49,10 +50,15 @@ class MainActivity : AppCompatActivity() {
                     callPhone(true)
                 } else {
                     Toast.makeText(
-                        this,
-                        "Permission required to call a number!",
-                        Toast.LENGTH_SHORT
+                        this, "Permission required to call a number!", Toast.LENGTH_SHORT
                     ).show()
+                }
+            }
+
+        pickImageArl =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == RESULT_OK) {
+                    startActivity(Intent(ACTION_VIEW, result.data?.data))
                 }
             }
     }
