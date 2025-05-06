@@ -3,6 +3,7 @@ package com.example.intents
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.intents.Extras.PARAMETER_EXTRA
 import com.example.intents.databinding.ActivityMainBinding
@@ -29,5 +30,13 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        parameterArl =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == RESULT_OK) {
+                    result.data?.getStringExtra(PARAMETER_EXTRA).let {
+                        binding.parameterTv.text = it
+                    }
+                }
+            }
     }
 }
