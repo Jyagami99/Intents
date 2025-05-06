@@ -1,11 +1,19 @@
 package com.example.intents
 
+import android.Manifest.permission.CALL_PHONE
 import android.content.Intent
 import android.content.Intent.ACTION_CALL
+import android.content.Intent.ACTION_CHOOSER
 import android.content.Intent.ACTION_DIAL
+import android.content.Intent.ACTION_PICK
 import android.content.Intent.ACTION_VIEW
+import android.content.Intent.EXTRA_INTENT
+import android.content.Intent.EXTRA_TITLE
+import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Bundle
+import android.os.Environment
 import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -51,7 +59,7 @@ class MainActivity : AppCompatActivity() {
                     callPhone(true)
                 } else {
                     Toast.makeText(
-                        this, "Permission required to call a number!", Toast.LENGTH_SHORT
+                        this, "Permissão necessária para ligar para este número!", Toast.LENGTH_SHORT
                     ).show()
                 }
             }
@@ -69,10 +77,64 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.open_activity_mi -> {
+                Toast.makeText(this, "Você abriu essa mensagem", Toast.LENGTH_SHORT).show()
+                true
+            }
+
+            R.id.view_mi -> {
+                startActivity(browserIntent())
+                true
+            }
+
+            R.id.call_mi -> {
+                if (checkSelfPermission(CALL_PHONE) == PERMISSION_GRANTED) {
+                    callPhone(true)
+                } else {
+                    cppArl.launch(CALL_PHONE)
+                }
+                true
+            }
+
+            R.id.dial_mi -> {
+                callPhone(false)
+                true
+            }
+
+            R.id.pick_mi -> {
+                val imageDir =
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).path
+                val pickImageIntent = Intent(ACTION_PICK)
+                pickImageIntent.setDataAndType(imageDir.toUri(), "image/*")
+                pickImageArl.launch(pickImageIntent)
+                true
+            }
+
+            R.id.chooser_mi -> {
+                val chooserIntent = Intent(ACTION_CHOOSER)
+                chooserIntent.putExtra(EXTRA_TITLE, "Escolha seu navegador favorito!")
+                chooserIntent.putExtra(EXTRA_INTENT, browserIntent())
+                startActivity(chooserIntent)
+                true
+            }
+
+            else -> {
+                false
+            }
+        }
+    }
+
     private fun callPhone(call: Boolean) {
         val number = "tel: ${binding.parameterTv.text}"
         val callIntent = Intent(if (call) ACTION_CALL else ACTION_DIAL)
         callIntent.data = number.toUri()
         startActivity(callIntent)
+    }
+
+    private fun browserIntent(): Intent {
+        val url = binding.parameterTv.text.toString().toUri()
+        return Intent(ACTION_VIEW, url)
     }
 }
