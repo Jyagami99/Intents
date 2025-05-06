@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Intents</string>
+    <string name="parameter">Parameter</string>
 </resources>
