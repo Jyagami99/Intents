@@ -10,4 +10,5 @@
     <string name="pick_an_image">Pick an image</string>
     <string name="choose_a_viewer">Choose a viewer</string>
     <string name="implicit_intents">Implicit intents</string>
+    <string name="return_and_close">Return and close</string>
 </resources>
