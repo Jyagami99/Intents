@@ -2,11 +2,9 @@ package com.example.intents
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import com.example.intents.Extras.PARAMETER_EXTRA
 import com.example.intents.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -18,15 +16,18 @@ class MainActivity : AppCompatActivity() {
         ActivityMainBinding.inflate(layoutInflater)
     }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+        setContentView(binding.root)
+        setSupportActionBar(binding.toolbarIn.toolbar)
+        supportActionBar?.subtitle = localClassName
+
+        binding.parameterBt.setOnClickListener {
+            Intent("OPEN_PARAMETER_ACTIVITY_ACTION").let {
+                it.putExtra(PARAMETER_EXTRA, binding.parameterTv.text.toString())
+                parameterArl.launch(it)
+            }
         }
+
     }
 }
