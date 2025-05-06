@@ -21,6 +21,9 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.intents.Extras.PARAMETER_EXTRA
 import com.example.intents.databinding.ActivityMainBinding
 import androidx.core.net.toUri
+import com.example.intents.Messages.CALL_ERROR
+import com.example.intents.Messages.CHOOSE_BROWSER
+import com.example.intents.Messages.OPEN_MESSAGE
 
 class MainActivity : AppCompatActivity() {
     private lateinit var parameterArl: ActivityResultLauncher<Intent>
@@ -38,7 +41,7 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.subtitle = localClassName
 
         binding.parameterBt.setOnClickListener {
-            Intent("OPEN_PARAMETER_ACTIVITY_ACTION").let {
+            Intent(this, ParameterActivity::class.java).let {
                 it.putExtra(PARAMETER_EXTRA, binding.parameterTv.text.toString())
                 parameterArl.launch(it)
             }
@@ -59,7 +62,7 @@ class MainActivity : AppCompatActivity() {
                     callPhone(true)
                 } else {
                     Toast.makeText(
-                        this, "Permissão necessária para ligar para este número!", Toast.LENGTH_SHORT
+                        this, CALL_ERROR, Toast.LENGTH_SHORT
                     ).show()
                 }
             }
@@ -80,21 +83,18 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.open_activity_mi -> {
-                Toast.makeText(this, "Você abriu essa mensagem", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, OPEN_MESSAGE, Toast.LENGTH_SHORT).show()
                 true
             }
 
             R.id.view_mi -> {
-                startActivity(browserIntent())
+                browserIntent()?.let { startActivity(it) }
                 true
             }
 
             R.id.call_mi -> {
-                if (checkSelfPermission(CALL_PHONE) == PERMISSION_GRANTED) {
-                    callPhone(true)
-                } else {
-                    cppArl.launch(CALL_PHONE)
-                }
+                if (checkSelfPermission(CALL_PHONE) == PERMISSION_GRANTED) callPhone(true)
+                else cppArl.launch(CALL_PHONE)
                 true
             }
 
@@ -106,23 +106,23 @@ class MainActivity : AppCompatActivity() {
             R.id.pick_mi -> {
                 val imageDir =
                     Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).path
-                val pickImageIntent = Intent(ACTION_PICK)
-                pickImageIntent.setDataAndType(imageDir.toUri(), "image/*")
+                val pickImageIntent = Intent(ACTION_PICK).apply {
+                    setDataAndType(imageDir.toUri(), "image/*")
+                }
                 pickImageArl.launch(pickImageIntent)
                 true
             }
 
             R.id.chooser_mi -> {
-                val chooserIntent = Intent(ACTION_CHOOSER)
-                chooserIntent.putExtra(EXTRA_TITLE, "Escolha seu navegador favorito!")
-                chooserIntent.putExtra(EXTRA_INTENT, browserIntent())
+                val chooserIntent = Intent(ACTION_CHOOSER).apply {
+                    putExtra(EXTRA_TITLE, CHOOSE_BROWSER)
+                    putExtra(EXTRA_INTENT, browserIntent())
+                }
                 startActivity(chooserIntent)
                 true
             }
 
-            else -> {
-                false
-            }
+            else -> false
         }
     }
 
@@ -133,8 +133,13 @@ class MainActivity : AppCompatActivity() {
         startActivity(callIntent)
     }
 
-    private fun browserIntent(): Intent {
-        val url = binding.parameterTv.text.toString().toUri()
-        return Intent(ACTION_VIEW, url)
+    private fun browserIntent(): Intent? {
+        val urlText = binding.parameterTv.text.toString().trim()
+        return if (urlText.startsWith("http://") || urlText.startsWith("https://")) {
+            Intent(ACTION_VIEW, urlText.toUri())
+        } else {
+            Toast.makeText(this, "URL inválida!", Toast.LENGTH_SHORT).show()
+            null
+        }
     }
 }
